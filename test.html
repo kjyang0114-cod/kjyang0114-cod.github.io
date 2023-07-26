@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Download Button</title>
+	<style>
+		.download-btn {
+			display: inline-block;
+			padding: 10px;
+			background-color: rgb(171, 230, 9);
+			border: 3px dashed #2f00ff;
+			color: #fff;
+			text-decoration: none;
+			font-size: 16px;
+			font-weight: bold;
+			border-radius: 5px;
+			box-shadow: 2px 2px 2px rgba(0,0,0,0.4);
+		}
+	</style>
+</head>
+<body>
+
+	<!-- Example using a link -->
+	<a href="/example.pdf" download class="download-btn">Download File</a>
+
+	<!-- Example using a button -->
+	<button onclick="downloadFile()" class="download-btn">Download File</button>
+
+	<script>
+		function downloadFile() {
+			var url = "/example.pdf";
+			var fileName = "example.pdf";
+			var a = document.createElement("a");
+			document.body.appendChild(a);
+			a.style = "display: none";
+			a.href = url;
+			a.download = fileName;
+			a.click();
+			window.URL.revokeObjectURL(url);
+		}
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=, initial-scale=1.0">
+    <title>KJ自架的網站</title>
+
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #747171fd;
+        }
+
+        .container {
+            width: 300px;
+            margin: 20px auto;
+        }
+
+        .input-group {
+            margin-bottom: 10px;
+        }
+
+        .label {
+            display: inline-block;
+            width: 100px;
+        }
+
+        .result {
+            font-weight: bold;
+        }
+
+        .chat-container {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            animation: fadeInOut 0.5s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-container.fadeOut {
+            animation-name: fadeOut;
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>hello world</h1>
+    <h2>別看我了 這只是個測試功能的網站</h2>
+    <a href="mailto:"></a>
+    <script src="./script.js"></script>
+    <input type="button" onclick="showAlert()" value="被嗆" name="button1" style="width:150px;height:50px;background-color:rgb(255, 196, 0);border-width:3px;border-style:dashed;border-color:#ff0000;padding:5px;">
+    <input type="button" onclick="showPrompt()" value="讓你輸入你名子" style="width:150px;height:50px;background-color:rgb(255, 196, 0);border-width:3px;border-style:dashed;border-color:#FFFF00;padding:5px;">
+    <input type="button" onclick="showPrompt1()" value="猜猜我名子" style="width:150px;height:50px;background-color:rgb(255, 196, 0);border-width:3px;border-style:dashed;border-color:#2f00ff;padding:5px; height: 50px;">
+    <button onclick="downloadFile()" class="download-btn" style="width:150px;height:50px;background-color:rgb(255, 196, 0);border-width:3px;border-style:dashed;border-color:#2bff00;padding:5px; font-size:16px;">下載測試檔</button>
+
+
+    <div class="container">
+        <div class="input-group">
+            <span class="label">數字 1:</span>
+            <input type="number" id="number1">
+        </div>
+        <div class="input-group">
+            <span class="label">數字 2:</span>
+            <input type="number" id="number2">
+        </div>
+        <button onclick="calculate()" style="width:150px;height:50px;background-color:rgb(255, 196, 0);border-width:3px;border-style:dashed;border-color:#2f00ff;padding:5px; font-size:16px;">計算</button>
+
+        <h3>結果：</h3>
+        <div>最小公因數: <span id="gcdResult" class="result"></span></div>
+        <div>最大公因數: <span id="lcmResult" class="result"></span></div>
+        <div>和: <span id="sumResult" class="result"></span></div>
+        <div>乘: <span id="productResult" class="result"></span></div>
+        <div>商: <span id="quotientResult" class="result"></span></div>
+        <div>差: <span id="differenceResult" class="result"></span></div>
+    </div>
+
+    <div class="calculator-container">
+        <input type="text" id="result" readonly>
+        <table>
+            <tr>
+                <td><button class="calculator-button" onclick="appendToExpression('7')">7</button></td>
+                <td><button class="calculator-button" onclick="appendToExpression('8')">8</button></td>
+                <td><button class="calculator-button" onclick="appendToExpression('9')">9</button></td>
+                <td><button class="calculator-button" onclick="appendToExpression('+')">+</button></td>
+            </tr>
+            <tr>
+                <td><button class="calculator-button" onclick="appendToExpression('4')">4</button></td>
+                <td><button class="calculator-button" onclick="appendToExpression('5')">5</button></td>
+                <td><button class="calculator-button" onclick="appendToExpression('6')">6</button></td>
+                <td><button class="calculator-button" onclick="appendToExpression('-')">-</button></td>
+            </tr>
+            <tr>
+                <td><button class="calculator-button" onclick="appendToExpression('1')">1</button></td>
+                <td><button class="calculator-button" onclick="appendToExpression('2')">2</button></td>
+                <td><button class="calculator-button" onclick="appendToExpression('3')">3</button></td>
+                <td><button class="calculator-button" onclick="appendToExpression('*')">*</button></td>
+            </tr>
+            <tr>
+                <td><button class="calculator-button" onclick="appendToExpression('0')">0</button></td>
+                <td><button class="calculator-button" onclick="appendToExpression('.')">.</button></td>
+                <td><button class="calculator-button" onclick="clearExpression()">C</button></td>
+                <td><button class="calculator-button" onclick="appendToExpression('/')">/</button></td>
+            </tr>
+            <tr>
+                <td colspan="4"><button class="calculator-button" onclick="evaluateExpression()">=</button></td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="bubble" id="chatOutput"></div>
+    </div>
+
+    <script>
+        var expression = "";
+        var chatTimeout;
+
+        function appendToExpression(value) {
+            expression += value;
+            updateResult();
+        }
+
+        function clearExpression() {
+            expression = "";
+            updateResult();
+        }
+
+        function updateResult() {
+            document.getElementById("result").value = expression;
+        }
+
+        function evaluateExpression() {
+            try {
+                var result = eval(expression);
+                expression = result.toString();
+            } catch (error) {
+                expression = "錯誤";
+            }
+            updateResult();
+        }
+
+        function showAlert() {
+            alert("你點我幹嘛 有病");
+        }
+
+        function showPrompt() {
+            var person = prompt("請輸入你的名字");
+            if (person != null && person !== "") {
+                var chatOutput = document.getElementById("chatOutput");
+                var bubble = document.createElement("div");
+                bubble.classList.add("bubble");
+                bubble.textContent = "你好 " + person + "! 你今天感覺如何?";
+                chatOutput.appendChild(bubble);
+                showChat();
+                startChatTimeout();
+            }
+        }
+
+        function showPrompt1() {
+            var person = prompt("請猜猜我的名字");
+            if (person != null && person !== "") {
+                var chatOutput = document.getElementById("chatOutput");
+                var bubble = document.createElement("div");
+                bubble.classList.add("bubble");
+                if (person === "KJ") {
+                    bubble.textContent = "你猜中了！";
+                } else {
+                    bubble.textContent = "喔不，我不叫" + person + "，真可惜...";
+                }
+                chatOutput.appendChild(bubble);
+                showChat();
+                startChatTimeout();
+            }
+            
+        }
+        function downloadFile() {
+        var url = "/example.pdf";
+        var fileName = "範例.pdf";
+        var a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+        function calculate() {
+            var number1 = parseInt(document.getElementById("number1").value);
+            var number2 = parseInt(document.getElementById("number2").value);
+
+            var gcd = calculateGCD(number1, number2);
+            var lcm = calculateLCM(number1, number2);
+            var sum = number1 + number2;
+            var product = number1 * number2;
+            var quotient = number1 / number2;
+            var difference = number1 - number2;
+
+            document.getElementById("gcdResult").textContent = gcd;
+            document.getElementById("lcmResult").textContent = lcm;
+            document.getElementById("sumResult").textContent = sum;
+            document.getElementById("productResult").textContent = product;
+            document.getElementById("quotientResult").textContent = quotient;
+            document.getElementById("differenceResult").textContent = difference;
+            showChat();
+            startChatTimeout();
+        }
+
+        function calculateGCD(a, b) {
+            if (b === 0) {
+                return a;
+            }
+            return calculateGCD(b, a % b);
+        }
+
+        function calculateLCM(a, b) {
+            var gcd = calculateGCD(a, b);
+            return (a * b) / gcd;
+        }
+
+        function showChat() {
+            var chatContainer = document.getElementById("chatContainer");
+            chatContainer.style.display = "block";
+            chatContainer.classList.remove("fadeOut");
+            chatContainer.classList.add("fadeInOut");
+        }
+
+        function startChatTimeout() {
+            clearTimeout(chatTimeout);
+            chatTimeout = setTimeout(function () {
+                hideChat();
+            }, 3000);
+        }
+
+        function hideChat() {
+            var chatContainer = document.getElementById("chatContainer");
+            chatContainer.classList.remove("fadeInOut");
+            chatContainer.classList.add("fadeOut");
+            setTimeout(function () {
+                chatContainer.style.display = "none";
+                var chatOutput = document.getElementById("chatOutput");
+                chatOutput.textContent = ""; // 清空聊天输出内容
+            }, 500);
+        }
+    </script>
+</body>
+</html>

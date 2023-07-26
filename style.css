@@ -1,0 +1,13 @@
+h1{
+    font-size: large;
+    font-weight: bolder;
+    background-color: #747171fd;
+    color: rgb(233, 157, 17);
+    text-align: center;
+    font-size: 30pt;
+}
+h2{
+    color: red;
+    font-family: 'Courier New', Courier, monospace;
+    font-style: normal;
+}
